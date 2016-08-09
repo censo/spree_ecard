@@ -11,7 +11,7 @@
         = hidden_field_tag :MERCHANTID, @gateway.merchantid
         = hidden_field_tag :ORDERNUMBER, @order.number
         = hidden_field_tag :ORDERDESCRIPTION, 'TODO'
-        = hidden_field_tag :AMOUNT, @gateway.ecard_amount(@order.total.to_s)
+        = hidden_field_tag :AMOUNT, @gateway.ecard_amount(@order.total)
         = hidden_field_tag :CURRENCY, @gateway.currency
         = hidden_field_tag :NAME, @order.try(:billing_address).try(:firstname)
         = hidden_field_tag :SURNAME, @order.try(:billing_address).try(:lastname)

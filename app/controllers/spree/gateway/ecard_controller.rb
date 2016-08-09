@@ -62,7 +62,7 @@ module Spree
   
       def generate_ecard_hash
         string_to = "#{@gateway.merchantid}#{@order.number}
-                     #{@gateway.ecard_amount(@order.total.to_s)}#{@gateway.currency}#{@order.line_items.map(&:name).join(', ')}
+                     #{@gateway.ecard_amount(@order.total)}#{@gateway.currency}#{@order.line_items.map(&:name).join(', ')}
                      #{@order.try(:bill_address).try(:firstname)}#{@order.try(:bill_address).try(:lastname)}#{@gateway.autodeposit}
                      #{@gateway.paymenttype}#{@link_fail}
                      #{@link_ok}
