@@ -1,0 +1,36 @@
+%div{:id => "checkout"}(data-hook)
+  = render :partial => 'spree/shared/error_messages', :locals => { :target => @order }
+  
+  %div{:class => "row", :"data-hook" => "checkout_content"}
+    %div{:class => "columns alpha twelve", :"data-hook" => "checkout_form_wrapper"}
+      = form_tag 'https://pay.ecard.pl/payment/PS', :method => :post, :id => "payment_form" do
+        %fieldset{:id => "payment"}(data-hook)
+          %legend= t(:payment_information)
+          %p= t('ecard.choose_channel')
+        = hidden_field_tag :COUNTRY, @gateway.country
+        = hidden_field_tag :MERCHANTID, @gateway.merchantid
+        = hidden_field_tag :ORDERNUMBER, @order.number
+        = hidden_field_tag :ORDERDESCRIPTION, 'TODO'
+        = hidden_field_tag :AMOUNT, @gateway.ecard_amount(@order.total.to_s)
+        = hidden_field_tag :CURRENCY, @gateway.currency
+        = hidden_field_tag :NAME, @order.try(:billing_address).try(:firstname)
+        = hidden_field_tag :SURNAME, @order.try(:billing_address).try(:lastname)
+        = hidden_field_tag :LANGUAGE, @gateway.language
+        = hidden_field_tag :AUTODEPOSIT, @gateway.autodeposit
+        = hidden_field_tag :PAYMENTTYPE, @gateway.paymenttype
+        = hidden_field_tag :TRANSPARENTPAGES, @gateway.transparentpages
+        = hidden_field_tag :CHARSET, @gateway.charset
+        = hidden_field_tag :LINKFAIL, @link_fail
+        = hidden_field_tag :LINKOK, @link_ok
+        = hidden_field_tag :HASHALGORITHM, @gateway.hashalgorithm
+        = hidden_field_tag :HASH, @ecard_hash
+          
+        %div{:class => "form-buttons", :"data-hook" => "buttons"}
+          = submit_tag t(:ecard_payment), :class => 'continue button primary'
+      
+    %br.space
+    
+    %div{:id => "checkout-summary", :"data-hook" => "checkout_summary_box", :class => "columns omega four"}
+      = render :partial => 'spree/checkout/summary', :locals => { :order => @order }
+
+    

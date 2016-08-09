@@ -1,0 +1,23 @@
+---
+pl:
+  ecard:
+    info: "Kontynuuj, aby zapłacić przy użyciu serwisu eCard"
+    choose_channel: "Wybierz kanał płatności poniżej i kliknij dalej, aby przetworzyć płatność"
+    error:
+      headline: "Błąd w przetwarzaniu płatności"
+      content: "Niestety wystąpił błąd w przetwarzaniu płatności przez ecard.pl lub zostało ono anulowane - prosimy spróbować ponownie. W razie powtarzających się problemów, prosimy o kontakt."
+      order_comeback: "Powrót do zamówienia"
+      error_code: "Kod błędu:"
+      error_description: "Opis błędu:"
+  payment_success: Płatność poprawna
+  currency: Waluta
+  p24_id_sprzedawcy: ID sprzedawcy
+  ecard_payment: Zapłać w ecard
+  url: URL
+  language: Język
+  Address: Adres
+  Delivery: Dostawa
+  Payment: Płatność
+  Confirm: Potwierdzenie
+  Complete: Koniec
+  

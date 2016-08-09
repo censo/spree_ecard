@@ -1,0 +1,11 @@
+%h1= t('ecard.error.headline')
+%p= t('ecard.error.content')
+- if params[:error_code]
+  %p
+    = t('ecard.error.error_code')
+    = params[:error_code]
+- if params[:error_descr]
+  %p
+    = t('ecard.error.error_description')
+    = Iconv.conv('utf-8', 'ISO-8859-2',params[:error_descr])
+%p= link_to t('ecard.error.order_comeback'), order_path(@order), :class => 'continue button primary'

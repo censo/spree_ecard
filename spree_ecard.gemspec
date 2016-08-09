@@ -3,31 +3,28 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'spree_ecard/version'
 
-Gem::Specification.new do |spec|
-  spec.name          = "spree_ecard"
-  spec.version       = SpreeEcard::VERSION
-  spec.authors       = ["Adam Migodziński"]
-  spec.email         = ["adam.migodzinski@goodylabs.com"]
+Gem::Specification.new do |s|
+  s.platform    = Gem::Platform::RUBY
+  s.name        = 'spree_ecard'
+  s.version     = SpreeEcard::VERSION
+  s.summary     = 'Ecard payment system for Spree'
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
-  spec.license       = "MIT"
+  s.author        = "Adam Migodziński"
+  s.email         = "adam.migodzinski@goodylabs.com"
 
-  # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
-  # delete this section to allow pushing this gem to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against public gem pushes."
-  end
+  s.homepage      = "TODO: Put your gem's website or public repo URL here."
+  s.license       = "MIT"
 
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
+  s.required_ruby_version = '>= 2.2.2'
 
-  spec.add_development_dependency "bundler", "~> 1.11"
-  spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "rspec", "~> 3.0"
+  s.files        = Dir['CHANGELOG', 'README.md', 'LICENSE', 'lib/**/*', 'app/**/*']
+  s.require_path = 'lib'
+  s.requirements << 'none'
+
+  s.add_dependency('spree_core', '>= 3.1.0')
+  s.add_dependency('haml')
+
+  s.add_development_dependency "bundler", "~> 1.11"
+  s.add_development_dependency "rake", "~> 10.0"
+  s.add_development_dependency "rspec", "~> 3.0"
 end
