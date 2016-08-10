@@ -9,8 +9,8 @@
           %p= t('ecard.choose_channel')
         = hidden_field_tag :COUNTRY, @gateway.country
         = hidden_field_tag :MERCHANTID, @gateway.merchantid
-        = hidden_field_tag :ORDERNUMBER, @order.number
-        = hidden_field_tag :ORDERDESCRIPTION, 'TODO'
+        = hidden_field_tag :ORDERNUMBER, @gateway.ecard_number(@order.number)
+        = hidden_field_tag :ORDERDESCRIPTION, @order.line_items.map(&:name).join(', ')
         = hidden_field_tag :AMOUNT, @gateway.ecard_amount(@order.total)
         = hidden_field_tag :CURRENCY, @gateway.currency
         = hidden_field_tag :NAME, @order.try(:billing_address).try(:firstname)

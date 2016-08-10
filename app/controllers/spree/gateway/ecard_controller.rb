@@ -5,6 +5,7 @@ module Spree
     
     # Show form ecard for pay
     def show
+      binding.pry
       @order = Order.find(params[:order_id])
       if params[:gateway_id]
         @gateway = @order.available_payment_methods.find{|x| x.id == params[:gateway_id].to_i }
@@ -23,50 +24,29 @@ module Spree
         end
       end
     end
-    
-    def error
-      @order = Order.find(params[:order_id])
-    end
-    
   
     # Result from ecard
     def comeback
-      # @order = Order.find(params[:order_id])
-      # @gateway = @order && @order.payments.first.payment_method
-      # @response = ecard_verify(@gateway,@order,params)
-      # @amount = 100.0
-      # @amount = params[:p24_kwota].to_f/100
-      # result = @response.split("\r\n")
-
-      # if result[1] == "TRUE"
-      #   ecard_payment_success(@amount)
-      #   redirect_to gateway_ecard_complete_path(:order_id => @order.id, :gateway_id => @gateway.id)
-      # else
-      #   redirect_to gateway_ecard_error_path(:gateway_id => @gateway.id, :order_id => @order.id, :error_code => result[2], :error_descr => result[3])
-      # end
-    end
-    
-    # complete the order
-    def complete    
-      @order = Order.find(params[:order_id])
+      order = Order.find(params[:order_id])
+      gateway = Spree::PaymentMethod.find(params[:gateway_id])
+      ecard_payment_success(order, gateway)
       
-      session[:order_id]=nil
+      session[:order_id] = nil
       if @order.state == "complete"
-        redirect_to order_url(@order, {:checkout_complete => true, :order_token => @order.token}), :notice => I18n.t("payment_success")
+        redirect_to order_url(order), :notice => I18n.t("payment_success")
       else
-        redirect_to order_url(@order)
+        redirect_to order_url(order)
       end
+    end
+
+    def error
+      @order = Order.find(params[:order_id])
     end
     
     private
   
       def generate_ecard_hash
-        string_to = "#{@gateway.merchantid}#{@order.number}
-                     #{@gateway.ecard_amount(@order.total)}#{@gateway.currency}#{@order.line_items.map(&:name).join(', ')}
-                     #{@order.try(:bill_address).try(:firstname)}#{@order.try(:bill_address).try(:lastname)}#{@gateway.autodeposit}
-                     #{@gateway.paymenttype}#{link_fail}
-                     #{link_ok}
-                     #{SpreeEcard.configuration.password}"
+        string_to = "#{@gateway.merchantid}#{@gateway.ecard_number(@order.number)}#{@gateway.ecard_amount(@order.total)}#{@gateway.currency}#{@order.line_items.map(&:name).join(', ')}#{@order.try(:bill_address).try(:firstname)}#{@order.try(:bill_address).try(:lastname)}#{@gateway.autodeposit}#{@gateway.paymenttype}#{link_fail}#{link_ok}#{SpreeEcard.configuration.password}"
         string_to_hash = string_to.encode("UTF-8")
         Digest::MD5.hexdigest(string_to_hash)
       end
@@ -80,17 +60,15 @@ module Spree
       end
     
       # Completed payment process
-      def ecard_payment_success(amount)
-        @order.payment.started_processing
-        if @order.total.to_f == amount.to_f      
-          @order.payment.complete     
-        end    
-        
+      def ecard_payment_success(order, gateway)
+        payment = @order.payments.where(payment_method_id: @gateway.id).where(state: 'checkout').first
+        payment.started_processing
+        payment.complete
         @order.finalize!
-        
         @order.next
         @order.next
         @order.save
+        binding.pry
       end
     
   end
