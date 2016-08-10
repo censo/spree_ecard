@@ -23,13 +23,28 @@ module Spree
         end
       end
     end
+
+    def process_payment
+      Rails.logger.info "[ECARD] payment service params:\n#{params.inspect}\n\n"
+
+      order_id = params['ORDERNUMBER']
+      order = Spree::Order.find_by(number: order_id)
+
+      if order
+        Rails.logger.info "[ECARD] Found order with number [#{order_id}]"
+        if paid_status?(params)
+          ecard_payment_success(order)
+        end
+      else
+        Rails.logger.error "[ECARD] Cannot find order with number [#{order_id}]"
+      end
+
+      render nothing: true, status: :ok
+  end
   
     # Result from ecard
     def comeback
-      order = Order.find(params[:order_id])
-      gateway = Spree::PaymentMethod.find(params[:gateway_id])
-      ecard_payment_success(order, gateway)
-      
+      order = Spree::Order.find(params[:order_id])
       session[:order_id] = nil
       if order.state == "complete"
         redirect_to order_url(order), :notice => I18n.t("payment_success")
@@ -43,7 +58,13 @@ module Spree
     end
     
     private
-  
+    
+      ## verifies if parameters values indicate valid payment for order
+      def paid_status?(params)
+        # Parameters: {"MERCHANTNUMBER"=>"10000002", "ORDERNUMBER"=>"26", "COMMTYPE"=>"ACCEPTPAYMENT", "PREVIOUSSTATE"=>"payment_pending", "CURRENTSTATE"=>"payment_deposited", "PAYMENTTYPE"=>"1", "EVENTTYPE"=>"1", "PAYMENTNUMBER"=>"1", "APPROVALCODE"=>"RMIDNK", "VALIDATIONCODE"=>"000", "BIN"=>"444444", "AUTHTIME"=>"2012-10-26 11:47:43.79", "TYPE"=>"22", "WITHCVC"=>"YES", "CURRENCY"=>"", "COUNTRY"=>"", "BRAND"=>"VISA"}
+        %w{payment_deposited payment_closed transfer_closed}.include? params['CURRENTSTATE']
+      end
+
       def generate_ecard_hash
         string_to = "#{@gateway.merchantid}#{@gateway.ecard_number(@order.number)}#{@gateway.ecard_amount(@order.total)}#{@gateway.currency}#{@order.line_items.map(&:name).join(', ')}#{@order.try(:bill_address).try(:firstname)}#{@order.try(:bill_address).try(:lastname)}#{@gateway.autodeposit}#{@gateway.paymenttype}#{link_fail}#{link_ok}#{SpreeEcard.configuration.password}"
         string_to_hash = string_to.encode("UTF-8")
@@ -59,8 +80,8 @@ module Spree
       end
     
       # Completed payment process
-      def ecard_payment_success(order, gateway)
-        payment = order.payments.where(payment_method_id: gateway.id).where(state: 'checkout').first
+      def ecard_payment_success(order)
+        gateway = Spree::PaymentMethod.find_by(type: "Spree::PaymentMethod::Ecard")
         payment.update_attribute(:amount, order.total)
         payment.started_processing
         payment.complete
