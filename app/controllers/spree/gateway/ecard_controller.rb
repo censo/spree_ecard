@@ -5,7 +5,6 @@ module Spree
     
     # Show form ecard for pay
     def show
-      binding.pry
       @order = Order.find(params[:order_id])
       if params[:gateway_id]
         @gateway = @order.available_payment_methods.find{|x| x.id == params[:gateway_id].to_i }

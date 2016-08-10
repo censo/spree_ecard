@@ -1,4 +1,4 @@
-Spree::Core::Engine.routes.append do
+Spree::Core::Engine.routes.draw do
   # Add your extension routes here
   namespace :gateway do
     get '/ecard/:gateway_id/:order_id' => 'ecard#show'
