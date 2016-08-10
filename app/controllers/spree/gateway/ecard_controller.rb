@@ -31,7 +31,7 @@ module Spree
       ecard_payment_success(order, gateway)
       
       session[:order_id] = nil
-      if @order.state == "complete"
+      if order.state == "complete"
         redirect_to order_url(order), :notice => I18n.t("payment_success")
       else
         redirect_to order_url(order)
@@ -60,14 +60,12 @@ module Spree
     
       # Completed payment process
       def ecard_payment_success(order, gateway)
-        payment = @order.payments.where(payment_method_id: @gateway.id).where(state: 'checkout').first
+        payment = order.payments.where(payment_method_id: gateway.id).where(state: 'checkout').first
+        payment.update_attribute(:amount, order.total)
         payment.started_processing
         payment.complete
-        @order.finalize!
-        @order.next
-        @order.next
-        @order.save
-        binding.pry
+        payment.order.finalize!
+        payment.order.next!
       end
     
   end
