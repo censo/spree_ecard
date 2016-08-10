@@ -64,8 +64,8 @@ module Spree
         string_to = "#{@gateway.merchantid}#{@order.number}
                      #{@gateway.ecard_amount(@order.total)}#{@gateway.currency}#{@order.line_items.map(&:name).join(', ')}
                      #{@order.try(:bill_address).try(:firstname)}#{@order.try(:bill_address).try(:lastname)}#{@gateway.autodeposit}
-                     #{@gateway.paymenttype}#{@link_fail}
-                     #{@link_ok}
+                     #{@gateway.paymenttype}#{link_fail}
+                     #{link_ok}
                      #{SpreeEcard.configuration.password}"
         string_to_hash = string_to.encode("UTF-8")
         Digest::MD5.hexdigest(string_to_hash)
@@ -73,12 +73,10 @@ module Spree
 
       def link_ok
         gateway_ecard_comeback_url(:gateway_id => @gateway.id, :order_id => @order.id)
-        'www.ruch.pl'
       end
 
       def link_fail
         gateway_ecard_error_url(:gateway_id => @gateway.id,:order_id => @order.id)
-        'www.ruch.pl'
       end
     
       # Completed payment process
