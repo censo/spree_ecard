@@ -1,4 +1,4 @@
-Rails.application.routes.draw  do
+Spree::Core::Engine.routes.draw do
   # Add your extension routes here
   namespace :gateway do
     post '/ecard/process_payment' => 'ecard#process_payment', as: :ecard_process_payment
