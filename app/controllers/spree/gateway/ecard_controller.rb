@@ -82,6 +82,7 @@ module Spree
       # Completed payment process
       def ecard_payment_success(order)
         gateway = Spree::PaymentMethod.find_by(type: "Spree::PaymentMethod::Ecard")
+        payment = order.payments.where(payment_method_id: gateway.id).where(state: 'checkout').first
         payment.update_attribute(:amount, order.total)
         payment.started_processing
         payment.complete
