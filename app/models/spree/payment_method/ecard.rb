@@ -11,6 +11,18 @@ module Spree
       order_number.gsub('R','')
     end
 
+    def ecard_desc(order)
+      "zamówienie #{order.number}"
+    end
+
+    def first_name(order)
+      order.try(:billing_address).try(:firstname)
+    end
+
+    def last_name(order)
+      order.try(:billing_address).try(:lastname)
+    end
+
     PREFERENCES.each do |meth|
       define_method("#{meth.to_s}") { SpreeEcard.configuration.send(meth) }
     end

@@ -66,7 +66,7 @@ module Spree
       end
 
       def generate_ecard_hash
-        string_to = "#{@gateway.merchantid}#{@gateway.ecard_number(@order.number)}#{@gateway.ecard_amount(@order.total)}#{@gateway.currency}#{@order.line_items.map(&:name).join(', ')}#{@order.try(:bill_address).try(:firstname)}#{@order.try(:bill_address).try(:lastname)}#{@gateway.autodeposit}#{@gateway.paymenttype}#{link_fail}#{link_ok}#{SpreeEcard.configuration.password}"
+        string_to = "#{@gateway.merchantid}#{@gateway.ecard_number(@order.number)}#{@gateway.ecard_amount(@order.total)}#{@gateway.currency}#{@gateway.ecard_desc(@order)}#{@gateway.first_name(@order)}#{@gateway.last_name(@order)}#{@gateway.autodeposit}#{@gateway.paymenttype}#{link_ok}#{SpreeEcard.configuration.password}"
         string_to_hash = string_to.encode("UTF-8")
         Digest::MD5.hexdigest(string_to_hash)
       end

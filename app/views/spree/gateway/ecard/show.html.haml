@@ -10,24 +10,21 @@
         = hidden_field_tag :COUNTRY, @gateway.country
         = hidden_field_tag :MERCHANTID, @gateway.merchantid
         = hidden_field_tag :ORDERNUMBER, @gateway.ecard_number(@order.number)
-        = hidden_field_tag :ORDERDESCRIPTION, @order.line_items.map(&:name).join(', ')
+        = hidden_field_tag :ORDERDESCRIPTION, @gateway.ecard_desc(@order)
         = hidden_field_tag :AMOUNT, @gateway.ecard_amount(@order.total)
         = hidden_field_tag :CURRENCY, @gateway.currency
-        = hidden_field_tag :NAME, @order.try(:billing_address).try(:firstname)
-        = hidden_field_tag :SURNAME, @order.try(:billing_address).try(:lastname)
+        = hidden_field_tag :NAME, @gateway.first_name(@order)
+        = hidden_field_tag :SURNAME, @gateway.last_name(@order)
         = hidden_field_tag :LANGUAGE, @gateway.language
         = hidden_field_tag :AUTODEPOSIT, @gateway.autodeposit
         = hidden_field_tag :PAYMENTTYPE, @gateway.paymenttype
-        = hidden_field_tag :TRANSPARENTPAGES, @gateway.transparentpages
         = hidden_field_tag :CHARSET, @gateway.charset
-        = hidden_field_tag :LINKFAIL, @link_fail
-        = hidden_field_tag :LINKOK, @link_ok
+        = hidden_field_tag :RETURNLINK, @link_ok
         = hidden_field_tag :HASHALGORITHM, @gateway.hashalgorithm
         = hidden_field_tag :HASH, @ecard_hash
-          
+
         %div{:class => "form-buttons", :"data-hook" => "buttons"}
           = submit_tag t(:ecard_payment), :class => 'continue button primary'
-      
     %br.space
     
     %div{:id => "checkout-summary", :"data-hook" => "checkout_summary_box", :class => "columns omega four"}
