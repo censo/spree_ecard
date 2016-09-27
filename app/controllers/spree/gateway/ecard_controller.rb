@@ -35,7 +35,7 @@ module Spree
       Rails.logger.info "[ECARD] payment service params:\n#{params.inspect}\n\n"
 
       order_id = params['ORDERNUMBER']
-      order = Spree::Order.find_by(number: order_id)
+      order = Spree::Order.find_by(number: "R#{order_id}")
 
       if order
         Rails.logger.info "[ECARD] Found order with number [#{order_id}]"
