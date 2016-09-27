@@ -24,7 +24,7 @@ module Spree
       order = Spree::Order.find(params[:order_id])
 
       unless order.next
-        flash[:error] = @order.errors.full_messages.join("\n")
+        flash[:error] = order.errors.full_messages.join("\n")
       end
 
       redirect_to order_url(order)
