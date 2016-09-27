@@ -1,12 +1,9 @@
-%div{:id => "checkout"}(data-hook)
-  = render :partial => 'spree/shared/error_messages', :locals => { :target => @order }
-  
-  %div{:class => "row", :"data-hook" => "checkout_content"}
-    %div{:class => "columns alpha twelve", :"data-hook" => "checkout_form_wrapper"}
+%html{:lang => I18n.locale}
+  %head
+  %body{ onload: "javascript:document.getElementById('payment_form').submit();"}
+    %div{:id => "checkout"}(data-hook)
+      = render :partial => 'spree/shared/error_messages', :locals => { :target => @order }
       = form_tag 'https://pay.ecard.pl/payment/PS', :method => :post, :id => "payment_form" do
-        %fieldset{:id => "payment"}(data-hook)
-          %legend= t(:payment_information)
-          %p= t('ecard.choose_channel')
         = hidden_field_tag :COUNTRY, @gateway.country
         = hidden_field_tag :MERCHANTID, @gateway.merchantid
         = hidden_field_tag :ORDERNUMBER, @gateway.ecard_number(@order.number)
@@ -23,11 +20,6 @@
         = hidden_field_tag :HASHALGORITHM, @gateway.hashalgorithm
         = hidden_field_tag :HASH, @ecard_hash
 
-        %div{:class => "form-buttons", :"data-hook" => "buttons"}
-          = submit_tag t(:ecard_payment), :class => 'continue button primary'
-    %br.space
-    
-    %div{:id => "checkout-summary", :"data-hook" => "checkout_summary_box", :class => "columns omega four"}
-      = render :partial => 'spree/checkout/summary', :locals => { :order => @order }
-
-    
+        %noscript
+          %div{:class => "form-buttons", :"data-hook" => "buttons"}
+            = submit_tag t(:ecard_payment), :class => 'button button--primary button--big button--upper button--block-center'

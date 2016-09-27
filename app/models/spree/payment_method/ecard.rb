@@ -2,7 +2,11 @@ module Spree
   class PaymentMethod::Ecard < PaymentMethod
   
     PREFERENCES = [:currency, :language, :merchantid, :country, :charset, :autodeposit, :hashalgorithm, :transparentpages, :paymenttype]
-    
+
+    def auto_capture?
+      true
+    end
+
     def ecard_amount(amount)
       (amount*100.00).to_i.to_s #total amount * 100
     end
