@@ -2,7 +2,7 @@ require 'digest/md5'
 module Spree
   class Gateway::EcardController < Spree::BaseController
 
-    skip_before_filter :verify_authenticity_token, :only => [:comeback, :complete]
+    skip_before_filter :verify_authenticity_token, :only => [:comeback, :process_payment]
 
     # Show form ecard for pay
     def show
