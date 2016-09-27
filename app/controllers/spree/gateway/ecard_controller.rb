@@ -19,6 +19,18 @@ module Spree
       end
     end
 
+    # Result from ecard after payment
+    def comeback
+      order = Spree::Order.find(params[:order_id])
+
+      unless order.next
+        flash[:error] = @order.errors.full_messages.join("\n")
+      end
+
+      redirect_to order_url(order)
+    end
+
+    # Ecard notification
     def process_payment
       Rails.logger.info "[ECARD] payment service params:\n#{params.inspect}\n\n"
 
@@ -27,35 +39,27 @@ module Spree
 
       if order
         Rails.logger.info "[ECARD] Found order with number [#{order_id}]"
-        if paid_status?(params)
+        if success_status?(params)
           ecard_payment_success(order)
+        elsif fail_status?(params)
+          ecard_payment_fail(order)
         end
       else
-        Rails.logger.error "[ECARD] Cannot find order with number [#{order_id}]"
+        Rails.logger.error "[ECARD] Cannot find order with number [#{order_id}] for ecard params:\n#{params.inspect}\n\n"
       end
 
       render nothing: true, status: :ok
     end
 
-    # Result from ecard
-    def comeback
-      order = Spree::Order.find(params[:order_id])
-
-      session[:order_id] = nil
-
-      if order.state == "complete"
-        redirect_to order_url(order), :notice => I18n.t("payment_success")
-      else
-        redirect_to order_url(order)
-      end
-    end
-
     private
 
     ## verifies if parameters values indicate valid payment for order
-    def paid_status?(params)
-      # Parameters: {"MERCHANTNUMBER"=>"10000002", "ORDERNUMBER"=>"26", "COMMTYPE"=>"ACCEPTPAYMENT", "PREVIOUSSTATE"=>"payment_pending", "CURRENTSTATE"=>"payment_deposited", "PAYMENTTYPE"=>"1", "EVENTTYPE"=>"1", "PAYMENTNUMBER"=>"1", "APPROVALCODE"=>"RMIDNK", "VALIDATIONCODE"=>"000", "BIN"=>"444444", "AUTHTIME"=>"2012-10-26 11:47:43.79", "TYPE"=>"22", "WITHCVC"=>"YES", "CURRENCY"=>"", "COUNTRY"=>"", "BRAND"=>"VISA"}
+    def success_status?(params)
       %w{payment_deposited payment_closed transfer_closed}.include? params['CURRENTSTATE']
+    end
+
+    def fail_status?(params)
+      %w{payment_declined payment_canceled payment_void transfer_declined transfer_canceled}.include? params['CURRENTSTATE']
     end
 
     def generate_ecard_hash
@@ -70,13 +74,18 @@ module Spree
 
     # Completed payment process
     def ecard_payment_success(order)
-      gateway = Spree::PaymentMethod.find_by(type: "Spree::PaymentMethod::Ecard")
-      payment = order.payments.where(payment_method_id: gateway.id).where(state: 'checkout').first
-      payment.update_attribute(:amount, order.total)
-      payment.started_processing
-      payment.complete
-      payment.order.finalize!
-      payment.order.next!
+      payment = order.payments.last
+      unless payment.completed? || payment.failed?
+        payment.complete!
+        order.finalize!
+      end
+    end
+
+    def ecard_payment_fail(order)
+      payment = order.payments.last
+      unless payment.completed? || payment.failed?
+        payment.failure!
+      end
     end
 
     def payment_success(payment_method)
@@ -91,6 +100,7 @@ module Spree
         redirect_to checkout_state_path(@order.state) and return
       end
 
+      payment.started_processing!
       payment.pend!
     end
 

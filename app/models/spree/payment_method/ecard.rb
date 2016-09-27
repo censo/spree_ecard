@@ -3,8 +3,8 @@ module Spree
   
     PREFERENCES = [:currency, :language, :merchantid, :country, :charset, :autodeposit, :hashalgorithm, :transparentpages, :paymenttype]
 
-    def auto_capture?
-      true
+    def source_required?
+      false
     end
 
     def ecard_amount(amount)
