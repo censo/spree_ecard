@@ -28,9 +28,7 @@ module Spree
       end
 
       payment = order.payments.last
-      binding.pry
       payment.started_processing!
-      binding.pry
       payment.pend!
 
       redirect_to order_url(order, {:checkout_complete => true})
