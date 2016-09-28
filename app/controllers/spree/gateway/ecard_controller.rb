@@ -39,14 +39,16 @@ module Spree
 
       if order
         Rails.logger.info "[ECARD] Found order with number [#{order_id}]"
-        if success_status?(params)
+        if success_status?(params['CURRENTSTATE'])
           ecard_payment_success(order)
-        elsif fail_status?(params)
+        elsif fail_status?(params['CURRENTSTATE'])
           ecard_payment_fail(order)
         end
       else
         Rails.logger.error "[ECARD] Cannot find order with number [#{order_id}] for ecard params:\n#{params.inspect}\n\n"
       end
+
+      Rails.logger.debug "[ECARD] return status OK"
 
       render nothing: true, status: :ok
     end
@@ -54,12 +56,14 @@ module Spree
     private
 
     ## verifies if parameters values indicate valid payment for order
-    def success_status?(params)
-      %w{payment_deposited payment_closed transfer_closed}.include? params['CURRENTSTATE']
+    def success_status?(state)
+      Rails.logger.debug "[ECARD] check if success status for state #{state}"
+      %w{payment_deposited payment_closed transfer_closed}.include? state
     end
 
-    def fail_status?(params)
-      %w{payment_declined payment_canceled payment_void transfer_declined transfer_canceled}.include? params['CURRENTSTATE']
+    def fail_status?(state)
+      Rails.logger.debug "[ECARD] check if fail status #{state}"
+      %w{payment_declined payment_canceled payment_void transfer_declined transfer_canceled}.include? state
     end
 
     def generate_ecard_hash
@@ -75,7 +79,7 @@ module Spree
     # Completed payment process
     def ecard_payment_success(order)
       payment = order.payments.last
-      Rails.logger.info "[ECARD] going to finalize order #{order.number} with payment [#{payment.number}/#{payment.state}]"
+      Rails.logger.debug "[ECARD] going to finalize order #{order.number} with payment [#{payment.number}/#{payment.state}]"
       unless payment.completed? || payment.failed?
         payment.complete!
         order.finalize!
@@ -84,7 +88,7 @@ module Spree
 
     def ecard_payment_fail(order)
       payment = order.payments.last
-      Rails.logger.info "[ECARD] going to fail order #{order.number} with payment [#{payment.number}/#{payment.state}]"
+      Rails.logger.debug "[ECARD] going to fail order #{order.number} with payment [#{payment.number}/#{payment.state}]"
       unless payment.completed? || payment.failed?
         payment.failure!
       end
