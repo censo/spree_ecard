@@ -23,11 +23,17 @@ module Spree
     def comeback
       order = Spree::Order.find(params[:order_id])
 
-      unless order.next
-        flash[:error] = order.errors.full_messages.join("\n")
+      if order.state != "complete"
+        order.next
       end
 
-      redirect_to order_url(order)
+      payment = order.payments.last
+      binding.pry
+      payment.started_processing!
+      binding.pry
+      payment.pend!
+
+      redirect_to order_url(order, {:checkout_complete => true})
     end
 
     # Ecard notification
@@ -79,9 +85,9 @@ module Spree
       payment = order.payments.last
       Rails.logger.debug "[ECARD] going to finalize order #{order.number} with payment [#{payment.number}/#{payment.state}]"
       unless payment.completed? || payment.failed?
-        payment.complete!
-        order.finalize!
+        payment.complete
       end
+      order.finalize!
     end
 
     def ecard_payment_fail(order)
@@ -104,8 +110,11 @@ module Spree
         redirect_to checkout_state_path(@order.state) and return
       end
 
-      payment.started_processing!
-      payment.pend!
+      unless @order.next
+        flash[:error] = order.errors.full_messages.join("\n")
+        redirect_to checkout_state_path(@order.state) and return
+      end
+
     end
 
   end

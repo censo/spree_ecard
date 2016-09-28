@@ -7,6 +7,10 @@ module Spree
       false
     end
 
+    def payment_profiles_supported?
+      false
+    end
+
     def ecard_amount(amount)
       (amount*100.00).to_i.to_s #total amount * 100
     end
