@@ -34,8 +34,8 @@ module Spree
     def process_payment
       Rails.logger.info "[ECARD] payment service params:\n#{params.inspect}\n\n"
 
-      order_id = params['ORDERNUMBER']
-      order = Spree::Order.find_by(number: "R#{order_id}")
+      order_id = "R#{params['ORDERNUMBER']}"
+      order = Spree::Order.find_by(number: order_id)
 
       if order
         Rails.logger.info "[ECARD] Found order with number [#{order_id}]"
@@ -75,6 +75,7 @@ module Spree
     # Completed payment process
     def ecard_payment_success(order)
       payment = order.payments.last
+      Rails.logger.info "[ECARD] going to finalize order #{order.number} with payment [#{payment.number}/#{payment.state}]"
       unless payment.completed? || payment.failed?
         payment.complete!
         order.finalize!
@@ -83,6 +84,7 @@ module Spree
 
     def ecard_payment_fail(order)
       payment = order.payments.last
+      Rails.logger.info "[ECARD] going to fail order #{order.number} with payment [#{payment.number}/#{payment.state}]"
       unless payment.completed? || payment.failed?
         payment.failure!
       end
