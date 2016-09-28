@@ -12,13 +12,8 @@ module Spree
       payment_method = PaymentMethod.find(params[:order][:payments_attributes].first[:payment_method_id])
 
       if payment_method && payment_method.kind_of?(PaymentMethod::Ecard)
-        do_before_payment(@order)
         redirect_to gateway_ecard_path(:gateway_id => payment_method.id, :order_id => @order.id)
       end
-    end
-
-    def do_before_payment(order)
-
     end
 
   end
