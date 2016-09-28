@@ -48,9 +48,7 @@ module Spree
         Rails.logger.error "[ECARD] Cannot find order with number [#{order_id}] for ecard params:\n#{params.inspect}\n\n"
       end
 
-      Rails.logger.debug "[ECARD] return status OK"
-
-      render nothing: true, status: :ok
+      render :inline => 'OK'
     end
 
     private
