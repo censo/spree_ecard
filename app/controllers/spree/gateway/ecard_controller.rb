@@ -85,7 +85,7 @@ module Spree
       unless payment.completed? || payment.failed?
         payment.complete
       end
-      order.finalize!
+      order.next unless order.state == "complete"
     end
 
     def ecard_payment_fail(order)
