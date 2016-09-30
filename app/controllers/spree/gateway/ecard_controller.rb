@@ -41,15 +41,21 @@ module Spree
       order_id = "R#{params['ORDERNUMBER']}"
       order = Spree::Order.find_by(number: order_id)
 
-      if order
-        Rails.logger.info "[ECARD] Found order with number [#{order_id}]"
-        if success_status?(params['CURRENTSTATE'])
-          ecard_payment_success(order)
-        elsif fail_status?(params['CURRENTSTATE'])
-          ecard_payment_fail(order)
+      begin
+        if order
+          Rails.logger.info "[ECARD] Found order with number [#{order_id}]"
+          if success_status?(params['CURRENTSTATE'])
+            ecard_payment_success(order)
+          elsif fail_status?(params['CURRENTSTATE'])
+            ecard_payment_fail(order)
+          end
+        else
+          raise "[ECARD] Cannot find order with number [#{order_id}] for ecard params:\n#{params.inspect}\n\n"
         end
-      else
-        Rails.logger.error "[ECARD] Cannot find order with number [#{order_id}] for ecard params:\n#{params.inspect}\n\n"
+      rescue => e
+        msg = "Unable to process incoming payment for order #{order_id}."
+        Rollbar.error(e, msg)
+        Rails.logger.error "#{msg} Problem is\n#{e}"
       end
 
       render :inline => 'OK'
