@@ -74,6 +74,10 @@ module Spree
       %w{payment_declined payment_canceled payment_void transfer_declined transfer_canceled}.include? state
     end
 
+    def save_payment_params(params, payment)
+      # implement the way you want
+    end
+
     def generate_ecard_hash
       string_to = "#{@gateway.merchantid}#{@gateway.ecard_number(@order.number)}#{@gateway.ecard_amount(@order.total)}#{@gateway.currency}#{@gateway.ecard_desc(@order)}#{@gateway.first_name(@order)}#{@gateway.last_name(@order)}#{@gateway.autodeposit}#{@gateway.paymenttype}#{link_ok}#{SpreeEcard.configuration.password}"
       string_to_hash = string_to.encode("UTF-8")
@@ -87,6 +91,7 @@ module Spree
     # Completed payment process
     def ecard_payment_success(order)
       payment = order.payments.last
+      save_payment_params(params, payment)
       Rails.logger.debug "[ECARD] going to finalize order #{order.number} with payment [#{payment.number}/#{payment.state}]"
       unless payment.completed? || payment.failed?
         payment.complete
