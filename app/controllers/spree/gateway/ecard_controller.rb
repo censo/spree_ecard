@@ -56,9 +56,10 @@ module Spree
         msg = "Unable to process incoming payment for order #{order_id}."
         Rollbar.error(e, msg)
         Rails.logger.error "#{msg} Problem is\n#{e}"
+      ensure
+        Rails.logger.debug "[ECARD] return OK status to ecard"
+        render :inline => 'OK' and return
       end
-
-      render :inline => 'OK'
     end
 
     private
@@ -78,6 +79,10 @@ module Spree
       # implement the way you want
     end
 
+    def after_payment_complete(payment)
+      # implement the way you want
+    end
+
     def generate_ecard_hash
       string_to = "#{@gateway.merchantid}#{@gateway.ecard_number(@order.number)}#{@gateway.ecard_amount(@order.total)}#{@gateway.currency}#{@gateway.ecard_desc(@order)}#{@gateway.first_name(@order)}#{@gateway.last_name(@order)}#{@gateway.autodeposit}#{@gateway.paymenttype}#{link_ok}#{SpreeEcard.configuration.password}"
       string_to_hash = string_to.encode("UTF-8")
@@ -94,7 +99,9 @@ module Spree
       save_payment_params(params, payment)
       Rails.logger.debug "[ECARD] going to finalize order #{order.number} with payment [#{payment.number}/#{payment.state}]"
       unless payment.completed? || payment.failed?
-        payment.complete
+        if payment.complete
+          after_payment_complete(payment)
+        end
       end
       order.next unless order.state == "complete"
     end
