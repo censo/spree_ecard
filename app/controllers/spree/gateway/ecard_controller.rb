@@ -28,7 +28,6 @@ module Spree
       end
 
       payment = order.payments.last
-      payment.started_processing!
       payment.pend!
 
       redirect_to order_url(order, {:checkout_complete => true})
@@ -54,8 +53,8 @@ module Spree
         end
       rescue => e
         msg = "Unable to process incoming payment for order #{order_id}."
-        Rollbar.error(e, msg)
         Rails.logger.error "#{msg} Problem is\n#{e}"
+        Rollbar.error(e, msg)
       ensure
         Rails.logger.debug "[ECARD] return OK status to ecard"
         render :inline => 'OK' and return
@@ -131,6 +130,7 @@ module Spree
         redirect_to checkout_state_path(@order.state) and return
       end
 
+      payment.started_processing!
     end
 
   end
