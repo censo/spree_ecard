@@ -28,7 +28,9 @@ module Spree
       end
 
       payment = order.payments.last
-      payment.pend!
+      unless payment.completed? || payment.failed?
+        payment.pend!
+      end
 
       redirect_to order_url(order, {:checkout_complete => true})
     end
