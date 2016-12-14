@@ -28,7 +28,7 @@ module Spree
       end
 
       payment = order.payments.last
-      unless payment.completed? || payment.failed?
+      unless payment.pending? || payment.completed? || payment.failed?
         payment.pend!
       end
 
