@@ -53,12 +53,15 @@ module Spree
         else
           raise "[ECARD] Cannot find order with number [#{order_id}] for ecard params:\n#{params.inspect}\n\n"
         end
+
+        Rails.logger.debug "[ECARD] return OK status to ecard for order #{order_id}."
+        render :inline => 'OK' and return
       rescue => e
         msg = "Unable to process incoming payment for order #{order_id}."
         Rails.logger.error "#{msg} Problem is\n#{e}"
         Rollbar.error(e, msg)
-      ensure
-        Rails.logger.debug "[ECARD] return OK status to ecard"
+
+        Rails.logger.debug "[ECARD] return OK status to ecard for order #{order_id}."
         render :inline => 'OK' and return
       end
     end
