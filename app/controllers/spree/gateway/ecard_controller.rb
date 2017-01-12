@@ -113,6 +113,10 @@ module Spree
     def ecard_payment_fail(order)
       payment = order.payments.last
       Rails.logger.debug "[ECARD] going to fail order #{order.number} with payment [#{payment.number}/#{payment.state}]"
+
+      if payment.checkout?
+        payment.pend!
+      end
       unless payment.completed? || payment.failed?
         payment.failure!
       end
