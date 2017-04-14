@@ -16,7 +16,7 @@ module Spree
     end
 
     def ecard_number(order_number)
-      order_number.gsub('R','')
+      order_number.gsub('R','').to_i.to_s
     end
 
     def ecard_desc(order)

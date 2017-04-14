@@ -39,7 +39,13 @@ module Spree
     def process_payment
       Rails.logger.info "[ECARD] payment service params:\n#{params.inspect}\n\n"
 
-      order_id = "R#{params['ORDERNUMBER']}"
+      if params['ORDERNUMBER'].length < 9
+        _onum = params['ORDERNUMBER'].rjust(9, '0')
+      else
+        _onum = params['ORDERNUMBER']
+      end
+
+      order_id = "R#{_onum}"
       order = Spree::Order.find_by(number: order_id)
 
       begin
