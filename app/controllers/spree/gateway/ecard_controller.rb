@@ -23,13 +23,13 @@ module Spree
     def comeback
       order = Spree::Order.find(params[:order_id])
 
-      if order.state != "complete"
-        order.next
-      end
-
       payment = order.payments.last
       unless payment.pending? || payment.completed? || payment.failed?
         payment.pend!
+      end
+
+      if order.state != "complete"
+        order.next
       end
 
       redirect_to order_url(order, {:checkout_complete => true})
