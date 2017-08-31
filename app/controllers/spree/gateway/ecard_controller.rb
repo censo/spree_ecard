@@ -23,10 +23,12 @@ module Spree
     def comeback
       order = Spree::Order.find(params[:order_id])
 
-      payment = order.payments.last
-      unless payment.pending? || payment.completed? || payment.failed?
-        payment.pend!
-      end
+      # ta operacja powodowąła co jakiś czas ActiveRecord::RecordNotUnique: Mysql2::Error: Duplicate entry '4906-3' for key 'spree_shipping_rates_join_index': INSERT INTO `spree_shipping_rates` (`cost`, `tax_rate_id`, `shipping_method_id`, `selected`, `shipment_id`, `created_at`, `updated_at`) 
+      # odpuszczamy
+      # payment = order.payments.last
+      # unless payment.pending? || payment.completed? || payment.failed?
+      #   payment.pend!
+      # end
 
       if order.state != "complete"
         order.next
