@@ -31,6 +31,10 @@ module Spree
       order.try(:billing_address).try(:lastname)
     end
 
+    def cancel(response)
+      ActiveMerchant::Billing::Response.new(true, 'cancel', {}, {})
+    end
+
     PREFERENCES.each do |meth|
       define_method("#{meth.to_s}") { SpreeEcard.configuration.send(meth) }
     end
