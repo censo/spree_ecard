@@ -79,7 +79,7 @@ module Spree
     ## verifies if parameters values indicate valid payment for order
     def success_status?(state)
       Rails.logger.debug "[ECARD] check if success status for state #{state}"
-      %w{payment_deposited payment_closed transfer_closed}.include? state
+      %w{payment_deposited payment_closed transfer_accepted transfer_closed}.include? state
     end
 
     def fail_status?(state)
