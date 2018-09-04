@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.author        = "Adam Migodziński"
   s.email         = "adam.migodzinski@goodylabs.com"
 
-  s.homepage      = "TODO: Put your gem's website or public repo URL here."
+  s.homepage      = "https://goodylabs.com"
   s.license       = "MIT"
 
   s.required_ruby_version = '>= 2.2.2'
